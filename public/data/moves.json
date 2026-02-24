@@ -1,0 +1,29 @@
+[
+    {
+        "id": "58",
+        "name": "Ice Beam",
+        "type": "Ice",
+        "category": "Special",
+        "pp": "10",
+        "power": "90",
+        "accuracy": "100%"
+    },
+    {
+        "id": "59",
+        "name": "Blizzard",
+        "type": "Ice",
+        "category": "Special",
+        "power": "110",
+        "accuracy": "70%"
+    },
+    {
+        "id": "60",
+        "name": "Psybeam",
+        "type": "Psychic",
+        "category": "Special",
+        "pp": "20",
+        "power": "65",
+        "accuracy": "100%"
+    }
+    
+]
