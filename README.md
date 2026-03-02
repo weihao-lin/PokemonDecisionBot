@@ -1,1 +1,1 @@
-Current plan: build react web app to create custom pokemon battle scenarios with tool integration
+Current step: make dropdown(?) or other selection method for creating battle scenarios. it is currently a hard coded matchup with hard coded moveset
