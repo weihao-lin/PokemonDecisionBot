@@ -23,21 +23,25 @@ export default function ScenarioPanel({ onAnalyze }) {
   };
 
   return (
-    <section>
-      <h2>Scenario (Locked)</h2>
+    <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
+      <h2 style={{ marginTop: 0 }}>Scenario (Locked)</h2>
 
-      <div>
+      <div style={{ fontSize: 14, lineHeight: 1.6 }}>
         <div><b>Attacker:</b> {lockedSnapshot.attackerName}</div>
         <div><b>Defender:</b> {lockedSnapshot.defenderName}</div>
         <div><b>Moves:</b> {lockedSnapshot.moveNames.join(", ")}</div>
       </div>
 
-      {/* 
-        The entire battle state is sent upward in one object.
-      */}
-      <button onClick={() => onAnalyze(lockedSnapshot)}>
+      <button
+        style={{ marginTop: 12, padding: "8px 12px", cursor: "pointer" }}
+        onClick={() => onAnalyze(lockedSnapshot)}
+      >
         Analyze snapshot
       </button>
+
+      <p style={{ marginTop: 12, fontSize: 12, color: "#555" }}>
+        For now it just emits a snapshot object.
+      </p>
     </section>
   );
 }
