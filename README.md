@@ -2,3 +2,6 @@ Current step: make dropdown(?) or other selection method for creating battle sce
               
               
 add more moves and maybe more pokemon
+
+
+app link: https://pokemon-decision-bot-tgzd.vercel.app/
