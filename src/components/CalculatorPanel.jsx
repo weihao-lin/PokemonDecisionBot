@@ -5,22 +5,13 @@ import useCalculator from "../hooks/useCalculator.js";
 /**
  * CalculatorPanel:
  * - Receives snapshot
- * - Allows editing defender HP% and move text
+ * - Shows the 4 preset moves as read-only text
  * - Delegates dataset loading + computation to the hook
  */
 export default function CalculatorPanel({ snapshot }) {
-  const [moveNames, setMoveNames] = React.useState(["", "", "", ""]);
-
-  // Initialize editable inputs from snapshot whenever snapshot changes
-  React.useEffect(() => {
-    if (!snapshot) return;
-
-    setMoveNames(
-      Array.isArray(snapshot.moveNames) && snapshot.moveNames.length === 4
-        ? snapshot.moveNames
-        : ["", "", "", ""]
-    );
-  }, [snapshot]);
+  const moveNames = Array.isArray(snapshot?.moveNames) && snapshot.moveNames.length === 4
+    ? snapshot.moveNames
+    : ["", "", "", ""];
 
   const { loading, error, resolved, results } = useCalculator({
     snapshot,
@@ -33,7 +24,7 @@ export default function CalculatorPanel({ snapshot }) {
 
       {!snapshot && (
         <p style={{ color: "#555" }}>
-          Press <b>Analyze snapshot</b> to load attacker/defender + 4 moves.
+          Calculator will load when a trial begins.
         </p>
       )}
 
@@ -49,28 +40,25 @@ export default function CalculatorPanel({ snapshot }) {
 
             <div style={{ display: "grid", gap: 8 }}>
               {moveNames.map((name, idx) => (
-                <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div
+                  key={idx}
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    alignItems: "center",
+                    padding: "8px 10px",
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    background: "#fafafa",
+                  }}
+                >
                   <label style={{ width: 64, fontSize: 12, color: "#555" }}>
                     Move {idx + 1}
                   </label>
-
-                  <input
-                    value={name}
-                    onChange={(e) => {
-                      const next = [...moveNames];
-                      next[idx] = e.target.value;
-                      setMoveNames(next);
-                    }}
-                    placeholder="Type a damaging move name..."
-                    style={{ flex: 1, padding: 8, borderRadius: 8, border: "1px solid #ccc" }}
-                  />
+                  <span style={{ fontSize: 14 }}>{name}</span>
                 </div>
               ))}
             </div>
-
-            <p style={{ marginTop: 8, fontSize: 12, color: "#555" }}>
-              move input is text
-            </p>
           </div>
 
           <hr style={{ margin: "16px 0" }} />
