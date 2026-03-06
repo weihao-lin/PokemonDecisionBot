@@ -2,27 +2,15 @@ import React from "react";
 import CalculatorPanel from "./components/CalculatorPanel.jsx";
 import TrialPanel from "./components/TrialPanel.jsx";
 import ResponseSummary from "./components/ResponseSummary.jsx";
-import TrialResultFeedback from "./components/TrialResultFeedback.jsx";
 import { PRESETS } from "./data/presets.js";
 import { buildLookupMaps } from "./utils/buildLookupMaps.js";
 import { simulateMoveOutcomePct } from "./utils/damageFormula.js";
-import { exportResponsesCSV } from "./utils/exportCSV.js";
 import { sendTrialResult } from "./utils/sendToGoogleSheets.js";
-
-/**
- * Main ideas:
- * - Trials are shown in the exact order of PRESETS.
- * - After a move is chosen, that response is stored.
- * - A "Next Trial" button advances to the next preset.
- * - After the final preset, a summary screen is shown.
- */
 
 export default function App() {
   const [currentTrialIndex, setCurrentTrialIndex] = React.useState(0);
-  const [snapshot, setSnapshot] = React.useState(null);
   const [responses, setResponses] = React.useState([]);
   const [selectedMove, setSelectedMove] = React.useState("");
-  const [hasAnsweredCurrentTrial, setHasAnsweredCurrentTrial] = React.useState(false);
   const [isFinished, setIsFinished] = React.useState(false);
   const [maps, setMaps] = React.useState(null);
 
@@ -62,23 +50,28 @@ export default function App() {
     };
   }, []);
 
-  function handleAnalyze(snapshotObj) {
-    setSnapshot(snapshotObj);
-    setShowCalculator(true);
+  /**
+   * Only selects the move.
+   * Does NOT compute damage.
+   * Does NOT store final response yet.
+   */
+  function handleChooseMove(moveName) {
+    setSelectedMove(moveName);
   }
 
-  function handleChooseMove(moveName) {
-    if (!currentPreset) return;
-
-    setSelectedMove(moveName);
-    setHasAnsweredCurrentTrial(true);
+  /**
+   * Commit the selected move, simulate one realized outcome,
+   * store/send the response, then advance to the next trial.
+   */
+  function handleNextTrial() {
+    if (!currentPreset || !selectedMove) return;
 
     let damageDealtPct = "0.0%";
 
     if (maps) {
       const attacker = maps.pokemonByName.get(norm(currentPreset.attackerName));
       const defender = maps.pokemonByName.get(norm(currentPreset.defenderName));
-      const move = maps.moveByName.get(norm(moveName));
+      const move = maps.moveByName.get(norm(selectedMove));
 
       if (attacker && defender && move) {
         const power = toNumber(move.power);
@@ -104,20 +97,14 @@ export default function App() {
       goal: currentPreset.goal,
       attackerName: currentPreset.attackerName,
       defenderName: currentPreset.defenderName,
-      chosenMove: moveName,
+      chosenMove: selectedMove,
       damageDealtPct,
       timestamp: Date.now(),
     };
 
+    setResponses((prev) => [...prev, response]);
     sendTrialResult(response);
 
-    setResponses((prev) => {
-      const withoutCurrentTrial = prev.filter((r) => r.trialId !== currentPreset.id);
-      return [...withoutCurrentTrial, response];
-    });
-  }
-
-  function handleNextTrial() {
     const nextIndex = currentTrialIndex + 1;
 
     if (nextIndex >= PRESETS.length) {
@@ -126,14 +113,8 @@ export default function App() {
     }
 
     setCurrentTrialIndex(nextIndex);
-    setSnapshot(null);
     setSelectedMove("");
-    setShowCalculator(false);
-    setHasAnsweredCurrentTrial(false);
   }
-
-  const currentResponse =
-    responses.find((r) => String(r.trialId) === String(currentPreset?.id)) ?? null;
 
   if (isFinished) {
     return (
@@ -147,20 +128,6 @@ export default function App() {
       >
         <h1 style={{ marginTop: 0 }}>Experiment Complete</h1>
         <p>All trials have been completed.</p>
-
-        <button
-          onClick={() => exportResponsesCSV(responses)}
-          style={{
-            padding: "10px 14px",
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            cursor: "pointer",
-            marginBottom: 20,
-          }}
-        >
-          Download CSV
-        </button>
-
         <ResponseSummary responses={responses} />
       </div>
     );
@@ -195,18 +162,11 @@ export default function App() {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div>
-          <TrialPanel
-            snapshot={currentPreset}
-            onAnalyze={handleAnalyze}
-            onChooseMove={handleChooseMove}
-            selectedMove={selectedMove}
-          />
-
-          {hasAnsweredCurrentTrial && (
-            <TrialResultFeedback response={currentResponse} />
-          )}
-        </div>
+        <TrialPanel
+          snapshot={currentPreset}
+          onChooseMove={handleChooseMove}
+          selectedMove={selectedMove}
+        />
 
         {calculatorAllowed ? (
           <CalculatorPanel snapshot={currentPreset} />
@@ -221,16 +181,16 @@ export default function App() {
       <div style={{ marginTop: 16 }}>
         <button
           onClick={handleNextTrial}
-          disabled={!hasAnsweredCurrentTrial}
+          disabled={!selectedMove}
           style={{
             padding: "10px 14px",
             borderRadius: 8,
             border: "1px solid #ccc",
-            cursor: hasAnsweredCurrentTrial ? "pointer" : "not-allowed",
-            opacity: hasAnsweredCurrentTrial ? 1 : 0.5,
+            cursor: selectedMove ? "pointer" : "not-allowed",
+            opacity: selectedMove ? 1 : 0.5,
           }}
         >
-          {currentTrialIndex === PRESETS.length - 1 ? "Finish Experiment" : "Next Trial"}
+          {currentTrialIndex === PRESETS.length - 1 ? "Finish Experiment" : "Lock In Move & Next Trial"}
         </button>
       </div>
     </div>
