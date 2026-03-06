@@ -42,6 +42,365 @@
         "pp": "20",
         "power": "65",
         "accuracy": "100%"
+    },
+    {
+        "id": "16",
+        "name": "Gust",
+        "type": "Flying",
+        "category": "Special",
+        "pp": "35",
+        "power": "40",
+        "accuracy": "100%"
+    },
+    {
+        "id": "17",
+        "name": "Wing Attack",
+        "type": "Flying",
+        "category": "Physical",
+        "pp": "35",
+        "power": "60",
+        "accuracy": "100%"
+    },
+    {
+        "id": "18",
+        "name": "Flamethrower",
+        "type": "Fire",
+        "category": "Special",
+        "pp": "15",
+        "power": "90",
+        "accuracy": "100%"
+    },
+    {
+        "id": "19",
+        "name": "Fire Blast",
+        "type": "Fire",
+        "category": "Special",
+        "pp": "5",
+        "power": "110",
+        "accuracy": "85%"
+    },
+    {
+        "id": "20",
+        "name": "Surf",
+        "type": "Water",
+        "category": "Special",
+        "pp": "15",
+        "power": "90",
+        "accuracy": "100%"
+    },
+    {
+        "id": "21",
+        "name": "Hydro Pump",
+        "type": "Water",
+        "category": "Special",
+        "pp": "5",
+        "power": "110",
+        "accuracy": "80%"
+    },
+    {
+        "id": "22",
+        "name": "Thunderbolt",
+        "type": "Electric",
+        "category": "Special",
+        "pp": "15",
+        "power": "90",
+        "accuracy": "100%"
+    },
+    {
+        "id": "23",
+        "name": "Thunder",
+        "type": "Electric",
+        "category": "Special",
+        "pp": "10",
+        "power": "110",
+        "accuracy": "70%"
+    },
+    {
+        "id": "24",
+        "name": "Razor Leaf",
+        "type": "Grass",
+        "category": "Physical",
+        "pp": "25",
+        "power": "55",
+        "accuracy": "95%"
+    },
+    {
+        "id": "26",
+        "name": "Vine Whip",
+        "type": "Grass",
+        "category": "Physical",
+        "pp": "25",
+        "power": "45",
+        "accuracy": "100%"
+    },
+    {
+        "id": "27",
+        "name": "Solar Beam",
+        "type": "Grass",
+        "category": "Special",
+        "pp": "10",
+        "power": "120",
+        "accuracy": "100%"
+    },
+    {
+        "id": "28",
+        "name": "Rock Slide",
+        "type": "Rock",
+        "category": "Physical",
+        "pp": "10",
+        "power": "75",
+        "accuracy": "90%"
+    },
+    {
+        "id": "29",
+        "name": "Earthquake",
+        "type": "Ground",
+        "category": "Physical",
+        "pp": "10",
+        "power": "100",
+        "accuracy": "100%"
+    },
+    {
+        "id": "30",
+        "name": "Dig",
+        "type": "Ground",
+        "category": "Physical",
+        "pp": "10",
+        "power": "80",
+        "accuracy": "100%"
+    },
+    {
+        "id": "31",
+        "name": "Brick Break",
+        "type": "Fighting",
+        "category": "Physical",
+        "pp": "15",
+        "power": "75",
+        "accuracy": "100%"
+    },
+    {
+        "id": "32",
+        "name": "Karate Chop",
+        "type": "Fighting",
+        "category": "Physical",
+        "pp": "25",
+        "power": "50",
+        "accuracy": "100%"
+    },
+    {
+        "id": "33",
+        "name": "Shadow Ball",
+        "type": "Ghost",
+        "category": "Special",
+        "pp": "15",
+        "power": "80",
+        "accuracy": "100%"
+    },
+    {
+        "id": "34",
+        "name": "Dragon Claw",
+        "type": "Dragon",
+        "category": "Physical",
+        "pp": "15",
+        "power": "80",
+        "accuracy": "100%"
+    },
+    {
+        "id": "35",
+        "name": "Slash",
+        "type": "Normal",
+        "category": "Physical",
+        "pp": "20",
+        "power": "70",
+        "accuracy": "100%"
+    },
+    {
+        "id": "36",
+        "name": "Body Slam",
+        "type": "Normal",
+        "category": "Physical",
+        "pp": "15",
+        "power": "85",
+        "accuracy": "100%"
+    },
+    {
+        "id": "37",
+        "name": "Blizzard",
+        "type": "Ice",
+        "category": "Special",
+        "pp": "5",
+        "power": "110",
+        "accuracy": "70%"
+    },
+    {
+        "id": "38",
+        "name": "Thunder",
+        "type": "Electric",
+        "category": "Special",
+        "pp": "10",
+        "power": "110",
+        "accuracy": "70%"
+    },
+    {
+        "id": "39",
+        "name": "Hydro Pump",
+        "type": "Water",
+        "category": "Special",
+        "pp": "5",
+        "power": "110",
+        "accuracy": "80%"
+    },
+    {
+        "id": "40",
+        "name": "Fire Blast",
+        "type": "Fire",
+        "category": "Special",
+        "pp": "5",
+        "power": "110",
+        "accuracy": "85%"
+    },
+    {
+        "id": "41",
+        "name": "Hurricane",
+        "type": "Flying",
+        "category": "Special",
+        "pp": "10",
+        "power": "110",
+        "accuracy": "70%"
+    },
+    {
+        "id": "42",
+        "name": "Focus Blast",
+        "type": "Fighting",
+        "category": "Special",
+        "pp": "5",
+        "power": "120",
+        "accuracy": "70%"
+    },
+    {
+        "id": "43",
+        "name": "Stone Edge",
+        "type": "Rock",
+        "category": "Physical",
+        "pp": "5",
+        "power": "100",
+        "accuracy": "80%"
+    },
+    {
+        "id": "44",
+        "name": "Power Whip",
+        "type": "Grass",
+        "category": "Physical",
+        "pp": "10",
+        "power": "120",
+        "accuracy": "85%"
+    },
+    {
+        "id": "45",
+        "name": "Leaf Storm",
+        "type": "Grass",
+        "category": "Special",
+        "pp": "5",
+        "power": "130",
+        "accuracy": "90%"
+    },
+    {
+        "id": "46",
+        "name": "Draco Meteor",
+        "type": "Dragon",
+        "category": "Special",
+        "pp": "5",
+        "power": "130",
+        "accuracy": "90%"
+    },
+    {
+        "id": "47",
+        "name": "Megahorn",
+        "type": "Bug",
+        "category": "Physical",
+        "pp": "10",
+        "power": "120",
+        "accuracy": "85%"
+    },
+    {
+        "id": "48",
+        "name": "Cross Chop",
+        "type": "Fighting",
+        "category": "Physical",
+        "pp": "5",
+        "power": "100",
+        "accuracy": "80%"
+    },
+    {
+        "id": "49",
+        "name": "Dynamic Punch",
+        "type": "Fighting",
+        "category": "Physical",
+        "pp": "5",
+        "power": "100",
+        "accuracy": "50%"
+    },
+    {
+        "id": "50",
+        "name": "Iron Tail",
+        "type": "Steel",
+        "category": "Physical",
+        "pp": "15",
+        "power": "100",
+        "accuracy": "75%"
+    },
+    {
+        "id": "51",
+        "name": "Gunk Shot",
+        "type": "Poison",
+        "category": "Physical",
+        "pp": "5",
+        "power": "120",
+        "accuracy": "80%"
+    },
+    {
+        "id": "52",
+        "name": "Zap Cannon",
+        "type": "Electric",
+        "category": "Special",
+        "pp": "5",
+        "power": "120",
+        "accuracy": "50%"
+    },
+    {
+        "id": "53",
+        "name": "Magma Storm",
+        "type": "Fire",
+        "category": "Special",
+        "pp": "5",
+        "power": "100",
+        "accuracy": "75%"
+    },
+    {
+        "id": "54",
+        "name": "Inferno",
+        "type": "Fire",
+        "category": "Special",
+        "pp": "5",
+        "power": "100",
+        "accuracy": "50%"
+    },
+    {
+        "id": "55",
+        "name": "Thunder Fang",
+        "type": "Electric",
+        "category": "Physical",
+        "pp": "15",
+        "power": "65",
+        "accuracy": "95%"
+    },
+    {
+        "id": "56",
+        "name": "Rock Tomb",
+        "type": "Rock",
+        "category": "Physical",
+        "pp": "15",
+        "power": "60",
+        "accuracy": "95%"
     }
-    
 ]
