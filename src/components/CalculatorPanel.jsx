@@ -1,5 +1,4 @@
 import React from "react";
-import DefenderHpInput from "./DefenderHpInput.jsx";
 import MoveResultCard from "./MoveResultCard.jsx";
 import useCalculator from "../hooks/useCalculator.js";
 
@@ -10,16 +9,11 @@ import useCalculator from "../hooks/useCalculator.js";
  * - Delegates dataset loading + computation to the hook
  */
 export default function CalculatorPanel({ snapshot }) {
-  const [hpPercent, setHpPercent] = React.useState(100);
   const [moveNames, setMoveNames] = React.useState(["", "", "", ""]);
 
   // Initialize editable inputs from snapshot whenever snapshot changes
   React.useEffect(() => {
     if (!snapshot) return;
-
-    setHpPercent(
-      Number.isFinite(snapshot.defenderHpPercent) ? snapshot.defenderHpPercent : 100
-    );
 
     setMoveNames(
       Array.isArray(snapshot.moveNames) && snapshot.moveNames.length === 4
@@ -30,7 +24,6 @@ export default function CalculatorPanel({ snapshot }) {
 
   const { loading, error, resolved, results } = useCalculator({
     snapshot,
-    hpPercent,
     moveNames,
   });
 
@@ -49,10 +42,6 @@ export default function CalculatorPanel({ snapshot }) {
           <div style={{ fontSize: 14, lineHeight: 1.6 }}>
             <div><b>Attacker:</b> {snapshot.attackerName}</div>
             <div><b>Defender:</b> {snapshot.defenderName}</div>
-          </div>
-
-          <div style={{ marginTop: 12 }}>
-            <DefenderHpInput value={hpPercent} onChange={setHpPercent} />
           </div>
 
           <div style={{ marginTop: 12 }}>
