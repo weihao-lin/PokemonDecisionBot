@@ -23,7 +23,6 @@ export default function ResponseSummary({ responses }) {
               <div><b>Attacker:</b> {r.attackerName}</div>
               <div><b>Defender:</b> {r.defenderName}</div>
               <div><b>Chosen Move:</b> {r.chosenMove}</div>
-              <div><b>Used Calculator:</b> {r.usedCalculator ? "Yes" : "No"}</div>
               <div><b>Timestamp:</b> {new Date(r.timestamp).toLocaleString()}</div>
             </div>
           ))}
@@ -31,4 +30,5 @@ export default function ResponseSummary({ responses }) {
       )}
     </section>
   );
+
 }
