@@ -5,6 +5,7 @@ export default function TrialPanel({
   onChooseMove,
   selectedMove,
   isLocked,
+  isSubmitting,
 }) {
   if (!snapshot) {
     return (
@@ -46,16 +47,16 @@ export default function TrialPanel({
             <button
               key={`${moveName}-${idx}`}
               onClick={() => onChooseMove(moveName)}
-              disabled={isLocked}
+              disabled={isLocked || isSubmitting}
               style={{
                 padding: "10px 12px",
                 borderRadius: 8,
                 border: "1px solid #ccc",
-                cursor: isLocked ? "not-allowed" : "pointer",
+                cursor: isLocked || isSubmitting ? "not-allowed" : "pointer",
                 textAlign: "left",
                 background: isSelected ? "#e8f0ff" : "white",
                 fontWeight: isSelected ? 700 : 400,
-                opacity: isLocked ? 0.8 : 1,
+                opacity: isLocked || isSubmitting ? 0.8 : 1,
               }}
             >
               {moveName}

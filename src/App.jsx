@@ -15,6 +15,7 @@ export default function App() {
   const [lockedResponse, setLockedResponse] = React.useState(null);
   const [isFinished, setIsFinished] = React.useState(false);
   const [maps, setMaps] = React.useState(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const currentPreset = PRESETS[currentTrialIndex];
   const calculatorAllowed = currentPreset?.phase === 2;
@@ -58,7 +59,9 @@ export default function App() {
   }
 
   async function handleLockInMove() {
-    if (!currentPreset || !selectedMove || !maps || lockedResponse) return;
+    if (!currentPreset || !selectedMove || !maps || lockedResponse || isSubmitting) return;
+
+    setIsSubmitting(true);
 
     let damageDealtPct = "0.0%";
 
@@ -96,14 +99,14 @@ export default function App() {
 
     try {
       await sendTrialResult(response);
+      setLockedResponse(response);
+      setResponses((prev) => [...prev, response]);
     } catch (err) {
       console.error("Failed to send trial result:", err);
       alert("Failed to save this trial to Google Sheets.");
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setLockedResponse(response);
-    setResponses((prev) => [...prev, response]);
   }
 
   function handleNextTrial() {
@@ -119,6 +122,7 @@ export default function App() {
     setCurrentTrialIndex(nextIndex);
     setSelectedMove("");
     setLockedResponse(null);
+    setIsSubmitting(false);
   }
 
   if (isFinished) {
@@ -173,6 +177,7 @@ export default function App() {
             onChooseMove={handleChooseMove}
             selectedMove={selectedMove}
             isLocked={Boolean(lockedResponse)}
+            isSubmitting={isSubmitting}
           />
 
           {lockedResponse && <TrialResultFeedback response={lockedResponse} />}
@@ -192,16 +197,16 @@ export default function App() {
         {!lockedResponse ? (
           <button
             onClick={handleLockInMove}
-            disabled={!selectedMove}
+            disabled={!selectedMove || isSubmitting}
             style={{
               padding: "10px 14px",
               borderRadius: 8,
               border: "1px solid #ccc",
-              cursor: selectedMove ? "pointer" : "not-allowed",
-              opacity: selectedMove ? 1 : 0.5,
+              cursor: !selectedMove || isSubmitting ? "not-allowed" : "pointer",
+              opacity: !selectedMove || isSubmitting ? 0.5 : 1,
             }}
           >
-            Lock In Move
+            {isSubmitting ? "Saving..." : "Lock In Move"}
           </button>
         ) : (
           <button
