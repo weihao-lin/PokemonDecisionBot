@@ -16,7 +16,6 @@ export function exportResponsesCSV(responses) {
     "defenderName",
     "chosenMove",
     "damageDealtPct",
-    "usedCalculator",
     "timestamp"
   ];
 

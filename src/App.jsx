@@ -7,6 +7,7 @@ import { PRESETS } from "./data/presets.js";
 import { buildLookupMaps } from "./utils/buildLookupMaps.js";
 import { simulateMoveOutcomePct } from "./utils/damageFormula.js";
 import { exportResponsesCSV } from "./utils/exportCSV.js";
+import { sendTrialResult } from "./utils/sendToGoogleSheets.js";
 
 /**
  * Main ideas:
@@ -21,7 +22,6 @@ export default function App() {
   const [snapshot, setSnapshot] = React.useState(null);
   const [responses, setResponses] = React.useState([]);
   const [selectedMove, setSelectedMove] = React.useState("");
-  const [showCalculator, setShowCalculator] = React.useState(false);
   const [hasAnsweredCurrentTrial, setHasAnsweredCurrentTrial] = React.useState(false);
   const [isFinished, setIsFinished] = React.useState(false);
   const [maps, setMaps] = React.useState(null);
@@ -105,10 +105,11 @@ export default function App() {
       attackerName: currentPreset.attackerName,
       defenderName: currentPreset.defenderName,
       chosenMove: moveName,
-      usedCalculator: showCalculator,
       damageDealtPct,
       timestamp: Date.now(),
     };
+
+    sendTrialResult(response);
 
     setResponses((prev) => {
       const withoutCurrentTrial = prev.filter((r) => r.trialId !== currentPreset.id);
@@ -208,14 +209,7 @@ export default function App() {
         </div>
 
         {calculatorAllowed ? (
-          showCalculator ? (
-            <CalculatorPanel snapshot={snapshot} />
-          ) : (
-            <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
-              <h2 style={{ marginTop: 0 }}>Calculator</h2>
-              <p>Press <b>Analyze snapshot</b> to use the calculator for this trial.</p>
-            </section>
-          )
+          <CalculatorPanel snapshot={currentPreset} />
         ) : (
           <section style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
             <h2 style={{ marginTop: 0 }}>Calculator</h2>
