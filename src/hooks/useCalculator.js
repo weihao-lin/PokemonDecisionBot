@@ -11,7 +11,7 @@ import { computeExpectedDamagePctRange } from "../utils/damageFormula.js";
  *
  * This keeps all non-UI logic out of React components.
  */
-export default function useCalculator({ snapshot, moveNames }) {
+export default function useCalculator({ snapshot, hpPercent, moveNames }) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [maps, setMaps] = React.useState(null);
@@ -99,9 +99,10 @@ export default function useCalculator({ snapshot, moveNames }) {
         move,
         damagePctRange: `${minPct.toFixed(1)}% – ${maxPct.toFixed(1)}%`,
         accuracyPct: `${accuracy.toFixed(0)}%`,
+        meta: { defenderHpPercent: hpPercent },
       };
     });
-  }, [snapshot, maps, resolved, moveNames]);
+  }, [snapshot, maps, resolved, moveNames, hpPercent]);
 
   return { loading, error, resolved, results };
 }
@@ -127,5 +128,4 @@ function parseAccuracy(acc) {
   const s = String(acc ?? "").trim().replace("%", "");
   const n = Number(s);
   return Number.isFinite(n) ? n : NaN;
-
 }

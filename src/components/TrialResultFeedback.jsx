@@ -1,9 +1,5 @@
 import React from "react";
 
-/**
- * Minimal post-trial feedback.
- * Shows only the chosen move and one realized damage outcome.
- */
 export default function TrialResultFeedback({ response }) {
   if (!response) return null;
 
@@ -21,7 +17,7 @@ export default function TrialResultFeedback({ response }) {
 
       <div style={{ fontSize: 14, lineHeight: 1.7 }}>
         <div><b>Chosen move:</b> {response.chosenMove}</div>
-        <div><b>Damage dealt:</b> {response.damageDealtPct ?? "0.0%"} </div>
+        <div><b>Damage dealt:</b> {response.damageDealtPct ?? "0.0%"}</div>
       </div>
     </section>
   );

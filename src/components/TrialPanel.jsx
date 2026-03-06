@@ -1,18 +1,10 @@
 import React from "react";
 
-/**
- * TrialPanel shows:
- * - phase
- * - goal
- * - attacker / defender
- * - 4 move buttons
- * - Analyze button only in phase 2
- */
 export default function TrialPanel({
   snapshot,
-  onAnalyze,
   onChooseMove,
   selectedMove,
+  isLocked,
 }) {
   if (!snapshot) {
     return (
@@ -54,14 +46,16 @@ export default function TrialPanel({
             <button
               key={`${moveName}-${idx}`}
               onClick={() => onChooseMove(moveName)}
+              disabled={isLocked}
               style={{
                 padding: "10px 12px",
                 borderRadius: 8,
                 border: "1px solid #ccc",
-                cursor: "pointer",
+                cursor: isLocked ? "not-allowed" : "pointer",
                 textAlign: "left",
                 background: isSelected ? "#e8f0ff" : "white",
                 fontWeight: isSelected ? 700 : 400,
+                opacity: isLocked ? 0.8 : 1,
               }}
             >
               {moveName}
@@ -70,24 +64,11 @@ export default function TrialPanel({
         })}
       </div>
 
-      {calculatorAllowed ? (
-        <>
-          <button
-            style={{ marginTop: 16, padding: "8px 12px", cursor: "pointer" }}
-            onClick={() => onAnalyze(snapshot)}
-          >
-            Analyze snapshot
-          </button>
-
-          <p style={{ marginTop: 12, fontSize: 12, color: "#555" }}>
-            In this phase, the calculator may be used before choosing.
-          </p>
-        </>
-      ) : (
-        <p style={{ marginTop: 12, fontSize: 12, color: "#555" }}>
-          In this phase, the calculator is unavailable.
-        </p>
-      )}
+      <p style={{ marginTop: 12, fontSize: 12, color: "#555" }}>
+        {calculatorAllowed
+          ? "The calculator is available during this phase."
+          : "The calculator is unavailable during this phase."}
+      </p>
     </section>
   );
 }

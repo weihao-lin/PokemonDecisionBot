@@ -2,6 +2,7 @@ import React from "react";
 import CalculatorPanel from "./components/CalculatorPanel.jsx";
 import TrialPanel from "./components/TrialPanel.jsx";
 import ResponseSummary from "./components/ResponseSummary.jsx";
+import TrialResultFeedback from "./components/TrialResultFeedback.jsx";
 import { PRESETS } from "./data/presets.js";
 import { buildLookupMaps } from "./utils/buildLookupMaps.js";
 import { simulateMoveOutcomePct } from "./utils/damageFormula.js";
@@ -11,6 +12,7 @@ export default function App() {
   const [currentTrialIndex, setCurrentTrialIndex] = React.useState(0);
   const [responses, setResponses] = React.useState([]);
   const [selectedMove, setSelectedMove] = React.useState("");
+  const [lockedResponse, setLockedResponse] = React.useState(null);
   const [isFinished, setIsFinished] = React.useState(false);
   const [maps, setMaps] = React.useState(null);
 
@@ -50,44 +52,34 @@ export default function App() {
     };
   }, []);
 
-  /**
-   * Only selects the move.
-   * Does NOT compute damage.
-   * Does NOT store final response yet.
-   */
   function handleChooseMove(moveName) {
+    if (lockedResponse) return;
     setSelectedMove(moveName);
   }
 
-  /**
-   * Commit the selected move, simulate one realized outcome,
-   * store/send the response, then advance to the next trial.
-   */
-  function handleNextTrial() {
-    if (!currentPreset || !selectedMove) return;
+  function handleLockInMove() {
+    if (!currentPreset || !selectedMove || !maps || lockedResponse) return;
 
     let damageDealtPct = "0.0%";
 
-    if (maps) {
-      const attacker = maps.pokemonByName.get(norm(currentPreset.attackerName));
-      const defender = maps.pokemonByName.get(norm(currentPreset.defenderName));
-      const move = maps.moveByName.get(norm(selectedMove));
+    const attacker = maps.pokemonByName.get(norm(currentPreset.attackerName));
+    const defender = maps.pokemonByName.get(norm(currentPreset.defenderName));
+    const move = maps.moveByName.get(norm(selectedMove));
 
-      if (attacker && defender && move) {
-        const power = toNumber(move.power);
-        const accuracy = parseAccuracy(move.accuracy);
+    if (attacker && defender && move) {
+      const power = toNumber(move.power);
+      const accuracy = parseAccuracy(move.accuracy);
 
-        if (Number.isFinite(power) && power > 0 && Number.isFinite(accuracy)) {
-          const outcome = simulateMoveOutcomePct({
-            attacker,
-            defender,
-            move,
-            power,
-            accuracy,
-          });
+      if (Number.isFinite(power) && power > 0 && Number.isFinite(accuracy)) {
+        const outcome = simulateMoveOutcomePct({
+          attacker,
+          defender,
+          move,
+          power,
+          accuracy,
+        });
 
-          damageDealtPct = `${outcome.damagePct.toFixed(1)}%`;
-        }
+        damageDealtPct = `${outcome.damagePct.toFixed(1)}%`;
       }
     }
 
@@ -102,8 +94,13 @@ export default function App() {
       timestamp: Date.now(),
     };
 
+    setLockedResponse(response);
     setResponses((prev) => [...prev, response]);
     sendTrialResult(response);
+  }
+
+  function handleNextTrial() {
+    if (!lockedResponse) return;
 
     const nextIndex = currentTrialIndex + 1;
 
@@ -114,6 +111,7 @@ export default function App() {
 
     setCurrentTrialIndex(nextIndex);
     setSelectedMove("");
+    setLockedResponse(null);
   }
 
   if (isFinished) {
@@ -162,11 +160,16 @@ export default function App() {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <TrialPanel
-          snapshot={currentPreset}
-          onChooseMove={handleChooseMove}
-          selectedMove={selectedMove}
-        />
+        <div>
+          <TrialPanel
+            snapshot={currentPreset}
+            onChooseMove={handleChooseMove}
+            selectedMove={selectedMove}
+            isLocked={Boolean(lockedResponse)}
+          />
+
+          {lockedResponse && <TrialResultFeedback response={lockedResponse} />}
+        </div>
 
         {calculatorAllowed ? (
           <CalculatorPanel snapshot={currentPreset} />
@@ -178,20 +181,34 @@ export default function App() {
         )}
       </div>
 
-      <div style={{ marginTop: 16 }}>
-        <button
-          onClick={handleNextTrial}
-          disabled={!selectedMove}
-          style={{
-            padding: "10px 14px",
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            cursor: selectedMove ? "pointer" : "not-allowed",
-            opacity: selectedMove ? 1 : 0.5,
-          }}
-        >
-          {currentTrialIndex === PRESETS.length - 1 ? "Finish Experiment" : "Lock In Move & Next Trial"}
-        </button>
+      <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
+        {!lockedResponse ? (
+          <button
+            onClick={handleLockInMove}
+            disabled={!selectedMove}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 8,
+              border: "1px solid #ccc",
+              cursor: selectedMove ? "pointer" : "not-allowed",
+              opacity: selectedMove ? 1 : 0.5,
+            }}
+          >
+            Lock In Move
+          </button>
+        ) : (
+          <button
+            onClick={handleNextTrial}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 8,
+              border: "1px solid #ccc",
+              cursor: "pointer",
+            }}
+          >
+            {currentTrialIndex === PRESETS.length - 1 ? "Finish Experiment" : "Next Trial"}
+          </button>
+        )}
       </div>
     </div>
   );
