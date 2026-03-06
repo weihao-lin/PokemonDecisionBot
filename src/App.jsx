@@ -57,7 +57,7 @@ export default function App() {
     setSelectedMove(moveName);
   }
 
-  function handleLockInMove() {
+  async function handleLockInMove() {
     if (!currentPreset || !selectedMove || !maps || lockedResponse) return;
 
     let damageDealtPct = "0.0%";
@@ -94,9 +94,16 @@ export default function App() {
       timestamp: Date.now(),
     };
 
+    try {
+      await sendTrialResult(response);
+    } catch (err) {
+      console.error("Failed to send trial result:", err);
+      alert("Failed to save this trial to Google Sheets.");
+      return;
+    }
+
     setLockedResponse(response);
     setResponses((prev) => [...prev, response]);
-    sendTrialResult(response);
   }
 
   function handleNextTrial() {
