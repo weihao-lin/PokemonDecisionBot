@@ -2,7 +2,10 @@ import React from "react";
 import CalculatorPanel from "./components/CalculatorPanel.jsx";
 import TrialPanel from "./components/TrialPanel.jsx";
 import ResponseSummary from "./components/ResponseSummary.jsx";
+import TrialResultFeedback from "./components/TrialResultFeedback.jsx";
 import { PRESETS } from "./data/presets.js";
+import { buildLookupMaps } from "./utils/buildLookupMaps.js";
+import { simulateMoveOutcomePct } from "./utils/damageFormula.js";
 import { exportResponsesCSV } from "./utils/exportCSV.js";
 
 /**
@@ -21,28 +24,79 @@ export default function App() {
   const [showCalculator, setShowCalculator] = React.useState(false);
   const [hasAnsweredCurrentTrial, setHasAnsweredCurrentTrial] = React.useState(false);
   const [isFinished, setIsFinished] = React.useState(false);
+  const [maps, setMaps] = React.useState(null);
 
   const currentPreset = PRESETS[currentTrialIndex];
   const calculatorAllowed = currentPreset?.phase === 2;
 
-  /**
-   * Load the current trial into the calculator.
-   * Only used in phase 2.
-   */
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function loadData() {
+      try {
+        const [pRes, mRes] = await Promise.all([
+          fetch("/data/pokemon.json"),
+          fetch("/data/moves.json"),
+        ]);
+
+        if (!pRes.ok) throw new Error("Failed to load pokemon.json");
+        if (!mRes.ok) throw new Error("Failed to load moves.json");
+
+        const pokemonData = await pRes.json();
+        const movesData = await mRes.json();
+
+        const lookupMaps = buildLookupMaps(pokemonData, movesData);
+
+        if (!cancelled) {
+          setMaps(lookupMaps);
+        }
+      } catch (err) {
+        console.error("Failed to load data:", err);
+      }
+    }
+
+    loadData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   function handleAnalyze(snapshotObj) {
     setSnapshot(snapshotObj);
     setShowCalculator(true);
   }
 
-  /**
-   * Record the participant's move choice for the current trial.
-   * If they change their mind before advancing, overwrite the same trial response.
-   */
   function handleChooseMove(moveName) {
     if (!currentPreset) return;
 
     setSelectedMove(moveName);
     setHasAnsweredCurrentTrial(true);
+
+    let damageDealtPct = "0.0%";
+
+    if (maps) {
+      const attacker = maps.pokemonByName.get(norm(currentPreset.attackerName));
+      const defender = maps.pokemonByName.get(norm(currentPreset.defenderName));
+      const move = maps.moveByName.get(norm(moveName));
+
+      if (attacker && defender && move) {
+        const power = toNumber(move.power);
+        const accuracy = parseAccuracy(move.accuracy);
+
+        if (Number.isFinite(power) && power > 0 && Number.isFinite(accuracy)) {
+          const outcome = simulateMoveOutcomePct({
+            attacker,
+            defender,
+            move,
+            power,
+            accuracy,
+          });
+
+          damageDealtPct = `${outcome.damagePct.toFixed(1)}%`;
+        }
+      }
+    }
 
     const response = {
       trialId: currentPreset.id,
@@ -52,6 +106,7 @@ export default function App() {
       defenderName: currentPreset.defenderName,
       chosenMove: moveName,
       usedCalculator: showCalculator,
+      damageDealtPct,
       timestamp: Date.now(),
     };
 
@@ -61,10 +116,6 @@ export default function App() {
     });
   }
 
-  /**
-   * Advance to the next trial in the fixed sequence.
-   * If this was the last trial, end the experiment.
-   */
   function handleNextTrial() {
     const nextIndex = currentTrialIndex + 1;
 
@@ -80,6 +131,9 @@ export default function App() {
     setHasAnsweredCurrentTrial(false);
   }
 
+  const currentResponse =
+    responses.find((r) => String(r.trialId) === String(currentPreset?.id)) ?? null;
+
   if (isFinished) {
     return (
       <div
@@ -91,7 +145,6 @@ export default function App() {
         }}
       >
         <h1 style={{ marginTop: 0 }}>Experiment Complete</h1>
-
         <p>All trials have been completed.</p>
 
         <button
@@ -101,7 +154,7 @@ export default function App() {
             borderRadius: 8,
             border: "1px solid #ccc",
             cursor: "pointer",
-            marginBottom: 20
+            marginBottom: 20,
           }}
         >
           Download CSV
@@ -141,12 +194,18 @@ export default function App() {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <TrialPanel
-          snapshot={currentPreset}
-          onAnalyze={handleAnalyze}
-          onChooseMove={handleChooseMove}
-          selectedMove={selectedMove}
-        />
+        <div>
+          <TrialPanel
+            snapshot={currentPreset}
+            onAnalyze={handleAnalyze}
+            onChooseMove={handleChooseMove}
+            selectedMove={selectedMove}
+          />
+
+          {hasAnsweredCurrentTrial && (
+            <TrialResultFeedback response={currentResponse} />
+          )}
+        </div>
 
         {calculatorAllowed ? (
           showCalculator ? (
@@ -182,4 +241,20 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+function norm(s) {
+  return String(s ?? "").trim().toLowerCase();
+}
+
+function toNumber(x) {
+  const n = typeof x === "number" ? x : Number(String(x ?? "").trim());
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function parseAccuracy(acc) {
+  if (typeof acc === "number") return acc;
+  const s = String(acc ?? "").trim().replace("%", "");
+  const n = Number(s);
+  return Number.isFinite(n) ? n : NaN;
 }
