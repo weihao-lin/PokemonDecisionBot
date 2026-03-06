@@ -21,14 +21,77 @@
 
 const INTERNAL_LEVEL = 50;
 const CRIT_MULT = 1.5;
-
-// Default crit probability
 const CRIT_CHANCE = 1 / 24;
 
-const RANDOM_MIN = 0.85;
-const RANDOM_MAX = 1.0;
+/**
+ * Existing range-based function for the calculator.
+ * This can stay for your calculator UI.
+ */
+export function computeExpectedDamagePctRange({
+  attacker,
+  defender,
+  move,
+  power,
+  critChance = CRIT_CHANCE,
+}) {
+  const p = clamp(critChance, 0, 1);
 
-export function computeDamagePctRange({ attacker, defender, move, power, crit = false }) {
+  const normal = computeDamagePctRange({
+    attacker,
+    defender,
+    move,
+    power,
+    crit: false,
+    randomFactor: 0.85,
+  });
+
+  const normalMax = computeDamagePctRange({
+    attacker,
+    defender,
+    move,
+    power,
+    crit: false,
+    randomFactor: 1.0,
+  });
+
+  const critMin = computeDamagePctRange({
+    attacker,
+    defender,
+    move,
+    power,
+    crit: true,
+    randomFactor: 0.85,
+  });
+
+  const critMax = computeDamagePctRange({
+    attacker,
+    defender,
+    move,
+    power,
+    crit: true,
+    randomFactor: 1.0,
+  });
+
+  const expMin = (1 - p) * normal.minPct + p * critMin.minPct;
+  const expMax = (1 - p) * normalMax.maxPct + p * critMax.maxPct;
+
+  return {
+    minPct: expMin,
+    maxPct: expMax,
+  };
+}
+
+/**
+ * Core damage calculation for a fixed crit state and fixed random factor.
+ */
+export function computeDamagePctRange({
+  attacker,
+  defender,
+  move,
+  power,
+  crit = false,
+  randomFactor = 1.0,
+}) {
   const aBase = attacker?.base ?? {};
   const dBase = defender?.base ?? {};
 
@@ -47,46 +110,71 @@ export function computeDamagePctRange({ attacker, defender, move, power, crit = 
   const critMult = crit ? CRIT_MULT : 1.0;
 
   if (typeEff === 0) {
-    return { minPct: 0, maxPct: 0, meta: { stab, typeEff, critMult } };
+    return { minPct: 0, maxPct: 0 };
   }
 
-  const minDamage = Math.floor(baseDamage * stab * typeEff * critMult * RANDOM_MIN);
-  const maxDamage = Math.floor(baseDamage * stab * typeEff * critMult * RANDOM_MAX);
+  const damage = Math.floor(baseDamage * stab * typeEff * critMult * randomFactor);
+  const pct = (damage / hp) * 100;
 
   return {
-    minPct: (minDamage / hp) * 100,
-    maxPct: (maxDamage / hp) * 100,
-    meta: { stab, typeEff, critMult },
+    minPct: pct,
+    maxPct: pct,
   };
 }
 
 /**
- * Expected damage range, mixing crit probability into ONE range:
- * E[min] = (1-p)*normalMin + p*critMin
- * E[max] = (1-p)*normalMax + p*critMax
+ * NEW:
+ * Simulates one actual move outcome.
+ *
+ * Steps:
+ * 1. Accuracy roll
+ * 2. Crit roll
+ * 3. Random damage roll
+ * 4. Return one realized damage %
  */
-export function computeExpectedDamagePctRange({ attacker, defender, move, power, critChance = CRIT_CHANCE }) {
-  const p = clamp(critChance, 0, 1);
+export function simulateMoveOutcomePct({
+  attacker,
+  defender,
+  move,
+  power,
+  accuracy,
+  critChance = CRIT_CHANCE,
+}) {
+  const acc = clamp(accuracy / 100, 0, 1);
 
-  const normal = computeDamagePctRange({ attacker, defender, move, power, crit: false });
-  const crit = computeDamagePctRange({ attacker, defender, move, power, crit: true });
+  // Accuracy roll
+  const hitRoll = Math.random();
+  const hit = hitRoll < acc;
 
-  const expMin = (1 - p) * normal.minPct + p * crit.minPct;
-  const expMax = (1 - p) * normal.maxPct + p * crit.maxPct;
+  if (!hit) {
+    return {
+      hit: false,
+      crit: false,
+      damagePct: 0,
+    };
+  }
+
+  // Crit roll
+  const crit = Math.random() < critChance;
+
+  // Random damage roll between 0.85 and 1.00
+  const randomFactor = 0.85 + Math.random() * 0.15;
+
+  const result = computeDamagePctRange({
+    attacker,
+    defender,
+    move,
+    power,
+    crit,
+    randomFactor,
+  });
 
   return {
-    minPct: expMin,
-    maxPct: expMax,
-    meta: {
-      critChance: p,
-      // These are sometimes useful for debugging / later UI
-      normal,
-      crit,
-    },
+    hit: true,
+    crit,
+    damagePct: result.minPct,
   };
 }
-
-/* ---- helpers below ---- */
 
 function computeSTAB(attacker, move) {
   const moveType = norm(move?.type);
@@ -113,7 +201,6 @@ function getTypeMultiplier(atk, def) {
   return v == null ? 1.0 : v;
 }
 
-// (Same TYPE_CHART as before; keep your existing chart here)
 const TYPE_CHART = {
   normal: { rock: 0.5, ghost: 0, steel: 0.5 },
   fire: { fire: 0.5, water: 0.5, grass: 2, ice: 2, bug: 2, rock: 0.5, dragon: 0.5, steel: 2 },
@@ -138,10 +225,12 @@ const TYPE_CHART = {
 function norm(s) {
   return String(s ?? "").trim().toLowerCase();
 }
+
 function num(x) {
   const n = typeof x === "number" ? x : Number(String(x ?? "").trim());
   return Number.isFinite(n) ? n : 0;
 }
+
 function clamp(x, lo, hi) {
   return Math.max(lo, Math.min(hi, x));
 }
