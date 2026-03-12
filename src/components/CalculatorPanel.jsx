@@ -69,7 +69,6 @@ export default function CalculatorPanel({ snapshot }) {
             </div>
 
             <p style={{ marginTop: 8, fontSize: 12, color: "#555" }}>
-              move input is text
             </p>
           </div>
 
@@ -80,8 +79,6 @@ export default function CalculatorPanel({ snapshot }) {
 
           {resolved && (
             <p style={{ fontSize: 12, color: "#555" }}>
-              Resolved: attacker <b>{resolved.attacker?.name ?? "?"}</b>, defender{" "}
-              <b>{resolved.defender?.name ?? "?"}</b>
             </p>
           )}
 
@@ -94,4 +91,5 @@ export default function CalculatorPanel({ snapshot }) {
       )}
     </section>
   );
+
 }
